@@ -92,3 +92,11 @@ http://localhost:8080
 Email: admin@museum.com  
 Password: admin123
 ```
+## Notes
+- Developed as part of an **OOAD Mini Project**
+- Focuses on **clean architecture** and **modular backend design**
+
+## Authors
+- **Nehal G**
+- **Nevin Mathew Thomas**
+- **Pinisetti Sudhiksha**
