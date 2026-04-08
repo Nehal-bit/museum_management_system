@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Museum Management System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333;min-height:100vh}
+/* NAV */
+nav{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,.2);position:sticky;top:0;z-index:200}
+nav h1{font-size:20px;letter-spacing:.3px}
+.nav-right{display:flex;align-items:center;gap:12px;font-size:14px}
+/* Pages */
+.page{display:none}.page.active{display:block}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+/* Buttons */
+button{padding:9px 18px;cursor:pointer;border:none;border-radius:7px;font-size:14px;font-weight:500;transition:all .18s;font-family:inherit}
+.btn{background:#4f46e5;color:#fff}
+.btn:hover{background:#4338ca}
+.btn-green{background:#16a34a;color:#fff}
+.btn-green:hover{background:#15803d}
+.btn-red{background:#dc2626;color:#fff}
+.btn-red:hover{background:#b91c1c}
+.btn-gray{background:#6b7280;color:#fff}
+.btn-gray:hover{background:#4b5563}
+.btn-outline{background:#fff;color:#4f46e5;border:2px solid #4f46e5}
+.btn-outline:hover{background:#eef2ff}
+.btn-sm{padding:5px 12px;font-size:13px}
+.btn-danger{background:#dc2626;color:#fff;border:none}
+.btn-danger:hover{background:#b91c1c}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+/* Forms */
+.form-group{margin-bottom:16px}
+label{display:block;margin-bottom:6px;font-weight:500;font-size:13px;color:#555}
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:7px;font-size:14px;font-family:inherit;transition:border-color .2s;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+/* Cards */
+.card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 1px 8px rgba(0,0,0,.08);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.card h3{color:#4f46e5;margin-bottom:10px;font-size:16px}
+.card p{color:#555;font-size:14px;margin:5px 0;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;margin-top:16px}
+.form-card{background:#fff;padding:28px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);max-width:460px;margin:40px auto}
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:26px}
+.stat{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:20px;border-radius:12px;text-align:center}
+.stat h4{font-size:12px;color:rgba(255,255,255,.82);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.stat .n{font-size:34px;font-weight:700}
+/* Tabs */
+.tabs{display:flex;gap:2px;margin-bottom:22px;border-bottom:2px solid #e5e7eb;padding-bottom:0;flex-wrap:wrap}
+.tab-btn{padding:10px 20px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#6b7280;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .22s;border-radius:6px 6px 0 0}
+.tab-btn.active{color:#4f46e5;border-bottom-color:#4f46e5;background:#eef2ff}
+.tab-content{display:none}.tab-content.active{display:block}
+/* Table */
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.07)}
+th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #f1f5f9;font-size:13.5px}
+th{background:#4f46e5;color:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+tr:last-child td{border:none}
+tr:hover td{background:#fafbff}
+/* Badges */
+.badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11.5px;font-weight:600}
+.b-pending{background:#fef9c3;color:#854d0e}
+.b-confirmed{background:#dcfce7;color:#166534}
+.b-assigned{background:#dbeafe;color:#1e40af}
+.b-cancelled,.b-rejected,.b-refunded{background:#fee2e2;color:#991b1b}
+.b-paid{background:#dcfce7;color:#166534}
+.b-active{background:#dcfce7;color:#166534}
+.b-archived{background:#f1f5f9;color:#475569}
+/* Alerts */
+.alert{padding:13px 16px;border-radius:8px;margin-bottom:16px;font-size:14px;line-height:1.5}
+.alert-ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.alert-err{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.alert-info{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-box{background:#fff;padding:30px;border-radius:14px;max-width:520px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.18);position:relative;max-height:90vh;overflow-y:auto}
+.modal-box h3{margin-bottom:18px;color:#1f2937;font-size:18px}
+.modal-close{position:absolute;top:14px;right:16px;font-size:22px;cursor:pointer;color:#9ca3af;background:none;border:none;padding:0}
+.modal-close:hover{color:#374151}
+/* Notification */
+.notif{background:#eef2ff;border-left:4px solid #4f46e5;padding:13px 16px;border-radius:7px;margin:8px 0;font-size:14px}
+.notif small{display:block;margin-top:4px;color:#6b7280;font-size:12px}
+/* Section header */
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.sh h3{color:#1f2937;font-size:17px;margin:0}
+/* Page header */
+.ph{margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid #4f46e5}
+.ph h2{font-size:22px;color:#1f2937}
+/* Empty */
+.empty{text-align:center;padding:40px;color:#9ca3af;font-size:15px}
+/* Ticket card */
+.ticket{background:linear-gradient(135deg,#f8faff,#eef2ff);border:2px solid #c7d2fe;border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.ticket::before{content:'🎫';position:absolute;top:10px;right:16px;font-size:32px;opacity:.18}
+.ticket h4{color:#4f46e5;font-size:16px;margin-bottom:12px}
+.ticket .tk-row{display:flex;justify-content:space-between;margin:6px 0;font-size:13.5px}
+.ticket .tk-row span:first-child{color:#6b7280}
+.ticket .tk-row strong{color:#1f2937}
+/* Report display */
+.report-section{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,.07);margin-bottom:14px}
+.report-section h4{color:#4f46e5;margin-bottom:14px;font-size:16px;border-bottom:1px solid #e5e7eb;padding-bottom:8px}
+.report-kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:14px}
+.report-kv:last-child{border:none}
+.report-kv span{color:#6b7280}
+.report-kv strong{color:#1f2937}
+/* Star rating */
+.stars span{font-size:26px;cursor:pointer;transition:transform .12s;display:inline-block}
+.stars span:hover{transform:scale(1.2)}
+/* Link */
+a.lnk{color:#4f46e5;font-weight:500;text-decoration:none}
+a.lnk:hover{text-decoration:underline}
+/* Toast */
+#toast{position:fixed;bottom:22px;right:22px;background:#1f2937;color:#fff;padding:12px 20px;border-radius:9px;font-size:14px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:opacity .3s;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<nav>
+  <h1>🏛️ Museum Management System</h1>
+  <div class="nav-right" id="navRight" style="display:none">
+    <span id="navUser"></span>
+    <button class="btn-gray btn-sm" style="margin:0" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="loginPage" class="page active">
+  <div class="form-card">
+    <h2 style="text-align:center;margin-bottom:24px;color:#1f2937">Welcome Back</h2>
+    <div id="loginAlert"></div>
+    <div class="form-group"><label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@museum.com" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="form-group"><label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn" style="width:100%;padding:12px;font-size:15px" onclick="login()">Sign In</button>
+    <p style="text-align:center;margin-top:18px;font-size:14px">
+      New here? <a class="lnk" href="#" onclick="showPage('registerPage');return false">Register as Visitor</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════ REGISTER ════════ -->
+<div id="registerPage" class="page">
+  <div class="form-card">
+    <h2 style="text-align:center;margin-bottom:24px;color:#1f2937">Create Account</h2>
+    <div id="regAlert"></div>
+    <div class="form-group"><label>Full Name *</label><input type="text" id="regName" placeholder="Your full name"></div>
+    <div class="form-group"><label>Email *</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Password *</label><input type="password" id="regPass" placeholder="••••••••"></div>
+    <div class="form-group"><label>Phone</label><input type="text" id="regPhone" placeholder="+91 98765 43210"></div>
+    <button class="btn-green" style="width:100%;padding:12px;font-size:15px" onclick="register()">Create Account</button>
+    <p style="text-align:center;margin-top:18px;font-size:14px">
+      Already registered? <a class="lnk" href="#" onclick="showPage('loginPage');return false">Sign In</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN ════════════ -->
+<div id="adminPage" class="page">
+  <div class="container">
+    <div class="ph"><h2>⚙️ Admin Dashboard</h2></div>
+    <div class="stats" id="adminStats"></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="adminTab('bookings',this)">📋 Bookings</button>
+      <button class="tab-btn" onclick="adminTab('exhibits',this)">🏛️ Exhibits</button>
+      <button class="tab-btn" onclick="adminTab('guides',this)">🗺️ Guides</button>
+      <button class="tab-btn" onclick="adminTab('reports',this)">📊 Reports</button>
+      <button class="tab-btn" onclick="adminTab('analytics',this)">📈 Analytics</button>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div id="tab-bookings" class="tab-content active">
+      <div class="sh"><h3>All Booking Requests</h3>
+        <button class="btn-outline btn-sm" onclick="loadAdminBookings()">🔄 Refresh</button></div>
+      <div id="adminBookingList"></div>
+    </div>
+
+    <!-- EXHIBITS TAB -->
+    <div id="tab-exhibits" class="tab-content">
+      <div style="background:#fff;padding:22px;border-radius:12px;box-shadow:0 1px 8px rgba(0,0,0,.07);max-width:560px;margin-bottom:28px">
+        <h3 style="margin-bottom:16px;color:#1f2937">Add New Exhibit</h3>
+        <div id="addExhibitAlert"></div>
+        <div class="form-group"><label>Name *</label><input type="text" id="exName" placeholder="e.g., Egyptian Artifacts"></div>
+        <div class="form-group"><label>Category *</label><input type="text" id="exCategory" placeholder="e.g., Ancient History"></div>
+        <div class="form-group"><label>Description</label><textarea id="exDesc" rows="3" placeholder="Describe the exhibit…"></textarea></div>
+        <button class="btn-green" onclick="addExhibit()">➕ Add Exhibit</button>
+      </div>
+      <div class="sh"><h3>All Exhibits</h3></div>
+      <div id="adminExhibitList" class="grid"></div>
+    </div>
+
+<!-- Edit Exhibit Modal -->
+<div id="editExhibitModal" class="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('editExhibitModal')">×</button>
+    <h3>✏️ Edit Exhibit</h3>
+    <div id="editExhibitAlert"></div>
+    <input type="hidden" id="editExhibitId">
+    <div class="form-group"><label>Name *</label><input type="text" id="editExhibitName"></div>
+    <div class="form-group"><label>Category *</label><input type="text" id="editExhibitCategory"></div>
+    <div class="form-group"><label>Description</label><textarea id="editExhibitDesc" rows="3"></textarea></div>
+    <div class="form-group"><label>Status</label>
+      <select id="editExhibitStatus">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="ARCHIVED">ARCHIVED</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-green" onclick="saveExhibitEdit()">💾 Save Changes</button>
+      <button class="btn-gray" onclick="closeModal('editExhibitModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+    <!-- GUIDES TAB -->
+    <div id="tab-guides" class="tab-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px">
+        <div class="card">
+          <h3 style="margin-bottom:14px">Register New Guide</h3>
+          <div id="createGuideAlert"></div>
+          <div class="form-group"><label>Name *</label><input type="text" id="gName" placeholder="Guide's full name"></div>
+          <div class="form-group"><label>Email *</label><input type="email" id="gEmail" placeholder="guide@museum.com"></div>
+          <div class="form-group"><label>Password *</label><input type="password" id="gPass" placeholder="••••••••"></div>
+          <div class="form-group"><label>Specialization</label><input type="text" id="gSpec" placeholder="e.g., Ancient History"></div>
+          <button class="btn-green" onclick="createGuide()">Create Guide Account</button>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:14px">Assign Guide to Booking</h3>
+          <p style="color:#6b7280;font-size:13px;margin-bottom:14px">Select a CONFIRMED booking, then pick a guide to assign.</p>
+          <div id="assignGuideAlert"></div>
+          <div class="form-group"><label>Select Confirmed Booking</label>
+            <select id="selBooking"><option value="">Loading…</option></select></div>
+          <div class="form-group"><label>Select Guide</label>
+            <select id="selGuide"><option value="">Loading…</option></select></div>
+          <button class="btn-green" onclick="assignGuide()">Assign Guide</button>
+        </div>
+      </div>
+      <div class="sh"><h3>All Guides</h3></div>
+      <div id="adminGuideList"></div>
+      <div class="sh" style="margin-top:22px"><h3>All Guide Assignments</h3></div>
+      <div id="adminAssignmentList"></div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div id="tab-reports" class="tab-content">
+      <div style="background:#fff;padding:22px;border-radius:12px;box-shadow:0 1px 8px rgba(0,0,0,.07);max-width:460px;margin-bottom:28px">
+        <h3 style="margin-bottom:16px;color:#1f2937">Generate Report</h3>
+        <div class="form-group"><label>Report Type</label>
+          <select id="reportType">
+            <option value="TICKET">🎫 Ticket Report</option>
+            <option value="EXHIBIT">🏛️ Exhibit Report</option>
+            <option value="ANALYTICS">📈 Analytics Report</option>
+            <option value="COMBINED">📊 Combined Report</option>
+          </select></div>
+        <button class="btn-green" onclick="generateReport()">📊 Generate Report</button>
+      </div>
+      <div class="sh"><h3>Report History</h3>
+        <button class="btn-outline btn-sm" onclick="loadAdminReports()">🔄 Refresh</button></div>
+      <div id="adminReportList"></div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div id="tab-analytics" class="tab-content">
+      <div class="sh"><h3>Analytics Dashboard</h3></div>
+      <div id="analyticsDetail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Guide Modal (from booking row) -->
+<div id="assignModal" class="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('assignModal')">×</button>
+    <h3>Assign Guide to Booking #<span id="assignBookingId"></span></h3>
+    <p id="assignBookingInfo" style="color:#6b7280;font-size:13px;margin-bottom:16px"></p>
+    <div id="assignModalAlert"></div>
+    <div class="form-group"><label>Select Guide</label>
+      <select id="assignGuideSelect"><option value="">Loading…</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-green" onclick="doAssignFromModal()">Assign Guide</button>
+      <button class="btn-gray" onclick="closeModal('assignModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ VISITOR ══════════ -->
+<div id="visitorPage" class="page">
+  <div class="container">
+    <div class="ph"><h2>👤 Visitor Dashboard</h2></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="visitorTab('browse',this)">🏛️ Exhibits</button>
+      <button class="tab-btn" onclick="visitorTab('mybookings',this)">📋 My Bookings</button>
+      <button class="tab-btn" onclick="visitorTab('notifications',this)">🔔 Notifications</button>
+      <button class="tab-btn" onclick="visitorTab('feedback',this)">💬 Feedback</button>
+    </div>
+    <div id="tab-browse" class="tab-content active">
+      <div class="sh"><h3>Available Exhibits</h3>
+        <button class="btn-outline btn-sm" onclick="loadExhibitsForVisitor()">🔄 Refresh</button></div>
+      <div id="visitorExhibitGrid" class="grid"></div>
+    </div>
+    <div id="tab-mybookings" class="tab-content">
+      <div class="sh"><h3>My Bookings & Tickets</h3>
+        <button class="btn-outline btn-sm" onclick="loadVisitorBookings()">🔄 Refresh</button></div>
+      <div id="visitorBookingList"></div>
+    </div>
+    <div id="tab-notifications" class="tab-content">
+      <div class="sh"><h3>Notifications</h3>
+        <button class="btn-outline btn-sm" onclick="loadVisitorNotifications()">🔄 Refresh</button></div>
+      <div id="visitorNotifList"></div>
+    </div>
+    <div id="tab-feedback" class="tab-content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+        <div class="card">
+          <h3 style="margin-bottom:14px">Submit Feedback</h3>
+          <div id="feedbackAlert"></div>
+          <div class="form-group"><label>Exhibit</label>
+            <select id="fbExhibit"><option value="">Select exhibit…</option></select></div>
+          <div class="form-group"><label>Rating</label>
+            <div class="stars" id="starRow"></div></div>
+          <div class="form-group"><label>Comments</label>
+            <textarea id="fbComment" rows="4" placeholder="Share your experience…"></textarea></div>
+          <button class="btn-green" onclick="submitFeedback()">Submit Feedback</button>
+        </div>
+        <div>
+          <h3 style="margin-bottom:14px">Your Feedback</h3>
+          <div id="visitorFeedbackList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Book Visit Modal -->
+<div id="bookModal" class="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('bookModal')">×</button>
+    <h3>Book Visit — <span id="modalExhibitName" style="color:#4f46e5"></span></h3>
+    <div id="bookAlert"></div>
+    <div class="form-group"><label>Visit Date *</label>
+      <input type="date" id="bookDate"></div>
+    <div class="form-group"><label>Visit Time *</label>
+      <input type="time" id="bookTime" value="10:00"></div>
+    <div class="form-group"><label>Ticket Type</label>
+      <select id="bookTicketType">
+        <option value="ADULT">Adult — ₹500</option>
+        <option value="CHILD">Child — ₹200</option>
+        <option value="STUDENT">Student — ₹150</option>
+        <option value="VIP">VIP — ₹1500</option>
+      </select></div>
+    <div class="form-group"><label>Number of Tickets *</label>
+      <input type="number" id="bookNumberOfTickets" min="1" max="10" value="1"></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-green" onclick="submitBooking()">Confirm Booking</button>
+      <button class="btn-gray" onclick="closeModal('bookModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ GUIDE ════════════ -->
+<div id="guidePage" class="page">
+  <div class="container">
+    <div class="ph"><h2>🗺️ Guide Dashboard</h2></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="guideTab('assignments',this)">📋 Assignments</button>
+      <button class="tab-btn" onclick="guideTab('schedule',this)">🗓️ My Schedule</button>
+      <button class="tab-btn" onclick="guideTab('guideNotifs',this)">🔔 Notifications</button>
+    </div>
+    <div id="tab-assignments" class="tab-content active">
+      <div class="sh"><h3>Pending Assignments</h3>
+        <button class="btn-outline btn-sm" onclick="loadGuideAssignments()">🔄 Refresh</button></div>
+      <div id="guidePendingList"></div>
+      <div class="sh" style="margin-top:24px"><h3>Confirmed Assignments</h3></div>
+      <div id="guideConfirmedList"></div>
+    </div>
+    <div id="tab-schedule" class="tab-content">
+      <div class="sh"><h3>Confirmed Schedule</h3></div>
+      <div id="guideScheduleList"></div>
+    </div>
+    <div id="tab-guideNotifs" class="tab-content">
+      <div class="sh"><h3>Notifications</h3>
+        <button class="btn-outline btn-sm" onclick="loadGuideNotifications()">🔄 Refresh</button></div>
+      <div id="guideNotifList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let me = null;
+let bookingExhibitId = null;
+let assignTargetBookingId = null;
+let starRating = 0;
+
+// ── Init ──────────────────────────────────────────────────────────────────
+window.onload = () => {
+  const s = localStorage.getItem('museumUser');
+  if (s) { me = JSON.parse(s); route(); }
+  document.getElementById('bookDate').min = new Date().toISOString().split('T')[0];
+  buildStars();
+};
+
+// ── Routing ───────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const nr = document.getElementById('navRight');
+  if (me) { nr.style.display='flex'; document.getElementById('navUser').textContent=`👋 ${me.name} (${me.role})`; }
+  else nr.style.display='none';
+}
+function route() {
+  if (!me) { showPage('loginPage'); return; }
+  if (me.role==='ADMIN')   { showPage('adminPage');   loadAdminDashboard(); }
+  else if (me.role==='VISITOR') { showPage('visitorPage'); loadVisitorDashboard(); }
+  else if (me.role==='GUIDE')   { showPage('guidePage');   loadGuideDashboard(); }
+}
+function logout() { me=null; localStorage.removeItem('museumUser'); showPage('loginPage'); }
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+async function login() {
+  const email=v('loginEmail'), pass=v('loginPass');
+  const el=document.getElementById('loginAlert');
+  if (!email||!pass) { showAlert(el,'err','Please enter email and password.'); return; }
+  const r = await post('/auth/login',{email,password:pass});
+  if (r.ok) {
+    me={id:r.d.userId,userId:r.d.userId,name:r.d.name,email:r.d.email,role:r.d.role};
+    localStorage.setItem('museumUser',JSON.stringify(me));
+    el.innerHTML=''; route();
+  } else showAlert(el,'err',r.d.error||'Invalid credentials.');
+}
+async function register() {
+  const name=v('regName'),email=v('regEmail'),pass=v('regPass'),phone=v('regPhone');
+  const el=document.getElementById('regAlert');
+  if (!name||!email||!pass) { showAlert(el,'err','Name, email, password required.'); return; }
+  const r = await post('/auth/register',{name,email,password:pass,role:'VISITOR',phone});
+  if (r.ok) {
+    me={id:r.d.userId,userId:r.d.userId,name:r.d.name,email:r.d.email,role:r.d.role};
+    localStorage.setItem('museumUser',JSON.stringify(me));
+    el.innerHTML=''; route();
+  } else showAlert(el,'err',r.d.error||'Registration failed.');
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────
+async function loadAdminDashboard() {
+  await loadAdminStats();
+  await loadAdminBookings();
+  await loadAdminExhibits();
+  await loadAdminGuides();
+  await loadAdminReports();
+}
+
+async function loadAdminStats() {
+  const r = await get('/admin/analytics');
+  if (!r.ok) return;
+  const d = r.d;
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat"><h4>Visitors</h4><div class="n">${d.totalVisitors||0}</div></div>
+    <div class="stat"><h4>Bookings</h4><div class="n">${d.totalBookings||0}</div></div>
+    <div class="stat"><h4>Exhibits</h4><div class="n">${d.totalExhibits||0}</div></div>
+    <div class="stat"><h4>Revenue</h4><div class="n">₹${(d.totalRevenue||0).toLocaleString()}</div></div>
+    <div class="stat"><h4>Pending</h4><div class="n">${d.pendingSchedules||0}</div></div>
+    <div class="stat"><h4>Avg Rating</h4><div class="n">${(d.averageFeedbackRating||0).toFixed(1)}⭐</div></div>`;
+}
+
+// ─ Bookings Tab ─
+async function loadAdminBookings() {
+  const r = await get('/admin/bookings');
+  const el = document.getElementById('adminBookingList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No bookings yet.</div>'; return; }
+  const rows = r.d.map(b=>`<tr>
+    <td>#${b.bookingId}</td>
+    <td>${b.visitorName}</td>
+    <td>${b.exhibitName}</td>
+    <td>${b.visitDate} ${b.visitTime}</td>
+    <td>${ticketBadge(b)}</td>
+    <td><span class="badge ${statusClass(b.status)}">${b.status}</span></td>
+    <td>${b.assignedGuide&&b.assignedGuide!=='Not assigned'?`<span style="color:#16a34a;font-size:13px">✓ ${b.assignedGuide}</span>`:'<span style="color:#9ca3af;font-size:13px">—</span>'}</td>
+    <td>${adminBookingActions(b)}</td>
+  </tr>`).join('');
+  el.innerHTML=`<table><thead><tr>
+    <th>#</th><th>Visitor</th><th>Exhibit</th><th>Date & Time</th><th>Ticket</th><th>Status</th><th>Guide</th><th>Actions</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function ticketBadge(b) {
+  if (!b.ticketId) return '<span style="color:#9ca3af">—</span>';
+  return `<span class="badge ${payClass(b.paymentStatus)}">${b.ticketType} ₹${b.price}</span>`;
+}
+
+function adminBookingActions(b) {
+  const acts = [];
+  if (b.status==='PENDING') {
+    acts.push(`<button class="btn-green btn-sm" onclick="confirmBooking(${b.bookingId})">✓ Confirm</button>`);
+    acts.push(`<button class="btn-red btn-sm" onclick="rejectBooking(${b.bookingId})">✗ Reject</button>`);
+  }
+  if (b.status==='CONFIRMED') {
+    acts.push(`<button class="btn btn-sm" onclick="openAssignModal(${b.bookingId},'${esc(b.visitorName)}','${esc(b.exhibitName)}','${b.visitDate}')">Assign Guide</button>`);
+  }
+  return acts.join(' ') || '—';
+}
+
+async function confirmBooking(id) {
+  const r = await put(`/admin/bookings/${id}/confirm`);
+  if (r.ok) { toast('✅ Booking confirmed! Ticket issued.'); await loadAdminBookings(); await loadAdminStats(); }
+  else alert(r.d.error||'Error');
+}
+async function rejectBooking(id) {
+  const r = await put(`/admin/bookings/${id}/reject`);
+  if (r.ok) { toast('Booking rejected.'); await loadAdminBookings(); await loadAdminStats(); }
+  else alert(r.d.error||'Error');
+}
+
+// ─ Exhibits Tab ─
+async function loadAdminExhibits() {
+  const r = await get('/exhibits');
+  if (!r.ok) return;
+  const el = document.getElementById('adminExhibitList');
+  if (!r.d.length) { el.innerHTML='<div class="empty">No exhibits yet.</div>'; return; }
+  el.innerHTML = r.d.map(e=>`<div class="card">
+    <span style="font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">${e.category||'General'}</span>
+    <h3 style="margin-top:4px">${e.name}</h3>
+    <p>${e.description||'No description.'}</p>
+    <p style="margin-top:10px"><span class="badge ${e.status==='ACTIVE'?'b-active':'b-archived'}">${e.status}</span></p>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-outline btn-sm" onclick="openEditExhibit(${e.exhibitId},'${escQ(e.name)}','${escQ(e.category||'')}','${escQ(e.description||'')}','${e.status}')">✏️ Edit</button>
+      <button class="btn-danger btn-sm" onclick="deleteExhibit(${e.exhibitId},'${escQ(e.name)}')">🗑️ Delete</button>
+    </div>
+  </div>`).join('');
+}
+
+function escQ(s){ return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+function openEditExhibit(id,name,category,description,status){
+  document.getElementById('editExhibitId').value=id;
+  document.getElementById('editExhibitName').value=name;
+  document.getElementById('editExhibitCategory').value=category;
+  document.getElementById('editExhibitDesc').value=description;
+  document.getElementById('editExhibitStatus').value=status;
+  document.getElementById('editExhibitAlert').innerHTML='';
+  document.getElementById('editExhibitModal').classList.add('open');
+}
+
+async function saveExhibitEdit(){
+  const id=document.getElementById('editExhibitId').value;
+  const name=document.getElementById('editExhibitName').value;
+  const category=document.getElementById('editExhibitCategory').value;
+  const description=document.getElementById('editExhibitDesc').value;
+  const status=document.getElementById('editExhibitStatus').value;
+  const el=document.getElementById('editExhibitAlert');
+  if (!name||!category){ showAlert(el,'err','Name and category required.'); return; }
+  const r=await put('/admin/exhibits/'+id,{name,category,description,status});
+  if(r.ok){ showAlert(el,'ok','✅ Exhibit updated!'); setTimeout(()=>{ closeModal('editExhibitModal'); loadAdminExhibits(); },900); }
+  else showAlert(el,'err',r.d.error||'Update failed.');
+}
+
+async function deleteExhibit(id,name){
+  if(!confirm(`Archive exhibit "${name}"? It will no longer be visible to visitors.`)) return;
+  const r=await del('/admin/exhibits/'+id);
+  if(r.ok){ toast('Exhibit archived.'); await loadAdminExhibits(); await loadAdminStats(); }
+  else alert(r.d.error||'Delete failed.');
+}
+
+async function addExhibit() {
+  const name=v('exName'),category=v('exCategory'),description=v('exDesc');
+  const el=document.getElementById('addExhibitAlert');
+  if (!name||!category) { showAlert(el,'err','Name and category are required.'); return; }
+  const r = await post('/exhibits',{name,category,description,status:'ACTIVE'});
+  if (r.ok) {
+    showAlert(el,'ok','✅ Exhibit added!');
+    document.getElementById('exName').value='';document.getElementById('exCategory').value='';document.getElementById('exDesc').value='';
+    await loadAdminExhibits(); await loadAdminStats(); await refreshSelectsForGuideAssign();
+  } else showAlert(el,'err',r.d.error||'Failed.');
+}
+
+// ─ Guides Tab ─
+async function loadAdminGuides() {
+  // Guide list
+  const gr = await get('/guides');
+  const guideEl = document.getElementById('adminGuideList');
+  if (gr.ok&&gr.d.length) {
+    const rows=gr.d.map(g=>`<tr>
+      <td>${g.name}</td><td>${g.email}</td><td>${g.specialization||'—'}</td>
+      <td><span class="badge ${g.available?'b-active':'b-pending'}">${g.available?'Available':'Assigned'}</span></td>
+      <td><button class="btn-danger btn-sm" onclick="deleteGuide(${g.id},'${escQ(g.name)}')">🗑️ Delete</button></td>
+    </tr>`).join('');
+    guideEl.innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Specialization</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else guideEl.innerHTML='<div class="empty">No guides registered yet.</div>';
+
+  // Assignment list
+  const ar = await get('/admin/guides/assignments');
+  const assignEl = document.getElementById('adminAssignmentList');
+  if (ar.ok&&ar.d.length) {
+    const rows=ar.d.map(a=>`<tr>
+      <td>${a.guideName}</td>
+      <td>#${a.bookingId} — ${a.visitorName}</td>
+      <td>${a.exhibitName}</td>
+      <td>${a.visitDate} ${a.visitTime}</td>
+      <td><span class="badge ${statusClass(a.status)}">${a.status}</span></td>
+    </tr>`).join('');
+    assignEl.innerHTML=`<table><thead><tr><th>Guide</th><th>Booking</th><th>Exhibit</th><th>Date/Time</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else assignEl.innerHTML='<div class="empty">No assignments yet.</div>';
+
+  // Populate selects for inline assign form
+  await refreshSelectsForGuideAssign();
+}
+
+async function refreshSelectsForGuideAssign() {
+  const gr = await get('/guides');
+  const br = await get('/admin/bookings');
+
+  const gSel = document.getElementById('selGuide');
+  const bSel = document.getElementById('selBooking');
+  const aGSel = document.getElementById('assignGuideSelect');
+
+  if (gr.ok) {
+    const opts = '<option value="">Select guide…</option>'+gr.d.map(g=>`<option value="${g.id}">${g.name} (${g.specialization||'General'})</option>`).join('');
+    gSel.innerHTML = opts;
+    if (aGSel) aGSel.innerHTML = opts;
+  }
+
+  if (br.ok) {
+    const confirmed = br.d.filter(b=>b.status==='CONFIRMED');
+    bSel.innerHTML = '<option value="">Select confirmed booking…</option>'+
+      confirmed.map(b=>`<option value="${b.bookingId}">#${b.bookingId} — ${b.visitorName} @ ${b.exhibitName} (${b.visitDate})</option>`).join('');
+  }
+}
+
+async function createGuide() {
+  const name=v('gName'),email=v('gEmail'),password=v('gPass'),specialization=v('gSpec')||'General';
+  const el=document.getElementById('createGuideAlert');
+  if (!name||!email||!password) { showAlert(el,'err','Name, email, password required.'); return; }
+  const r = await post('/admin/guides/create',{name,email,password,specialization});
+  if (r.ok) {
+    showAlert(el,'ok',`✅ Guide "${name}" created! Login: ${email}`);
+    document.getElementById('gName').value='';document.getElementById('gEmail').value='';
+    document.getElementById('gPass').value='';document.getElementById('gSpec').value='';
+    await loadAdminGuides();
+  } else showAlert(el,'err',r.d.error||'Failed.');
+}
+
+async function assignGuide() {
+  const guideId=document.getElementById('selGuide').value;
+  const bookingId=document.getElementById('selBooking').value;
+  const el=document.getElementById('assignGuideAlert');
+  if (!guideId||!bookingId) { showAlert(el,'err','Select both a guide and a booking.'); return; }
+  const r = await post('/admin/guides/assign',{guideId:+guideId,bookingId:+bookingId});
+  if (r.ok) { showAlert(el,'ok','✅ Guide assigned! They have been notified.'); await loadAdminGuides(); await loadAdminBookings(); }
+  else showAlert(el,'err',r.d.error||'Assignment failed.');
+}
+
+async function deleteGuide(id,name){
+  if(!confirm(`Delete guide "${name}"?\n\nThis is blocked if they have active (PENDING/CONFIRMED) assignments.`)) return;
+  const r=await del('/admin/guides/'+id);
+  if(r.ok){ toast('Guide deleted.'); await loadAdminGuides(); }
+  else alert(r.d.error||'Delete failed.');
+}
+
+// Assign from modal (triggered from booking row button)
+let assignModalGuideId = null;
+function openAssignModal(bookingId, visitorName, exhibitName, visitDate) {
+  assignTargetBookingId = bookingId;
+  document.getElementById('assignBookingId').textContent = bookingId;
+  document.getElementById('assignBookingInfo').textContent =
+    `Visitor: ${visitorName} | Exhibit: ${exhibitName} | Date: ${visitDate}`;
+  document.getElementById('assignModalAlert').innerHTML='';
+  // Populate guide select
+  get('/guides').then(r=>{
+    document.getElementById('assignGuideSelect').innerHTML =
+      '<option value="">Select guide…</option>' +
+      (r.ok?r.d.map(g=>`<option value="${g.id}">${g.name} (${g.specialization||'General'})</option>`).join(''):'');
+  });
+  document.getElementById('assignModal').classList.add('open');
+}
+async function doAssignFromModal() {
+  const guideId = document.getElementById('assignGuideSelect').value;
+  const el = document.getElementById('assignModalAlert');
+  if (!guideId) { showAlert(el,'err','Please select a guide.'); return; }
+  const r = await post('/admin/guides/assign',{guideId:+guideId,bookingId:assignTargetBookingId});
+  if (r.ok) {
+    showAlert(el,'ok','✅ Guide assigned!');
+    setTimeout(()=>{ closeModal('assignModal'); loadAdminBookings(); loadAdminGuides(); },1200);
+  } else showAlert(el,'err',r.d.error||'Failed.');
+}
+
+// ─ Reports Tab ─
+async function loadAdminReports() {
+  const r = await get('/admin/reports');
+  const el = document.getElementById('adminReportList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No reports generated yet.</div>'; return; }
+  el.innerHTML = r.d.map(rep => {
+    let parsedData = {};
+    try { parsedData = JSON.parse(rep.reportData||'{}'); } catch(e){}
+    return `<div class="report-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h4 style="margin:0">${iconFor(rep.reportType)} ${rep.reportType} REPORT &nbsp;<span style="color:#9ca3af;font-size:13px;font-weight:400">${rep.generatedOn?.replace('T',' ').split('.')[0]||''}</span></h4>
+        <button class="btn-danger btn-sm" onclick="deleteReport(${rep.reportId})">🗑️ Delete</button>
+      </div>
+      ${renderReportData(rep.reportType, parsedData)}
+    </div>`;
+  }).join('');
+}
+
+async function deleteReport(id){
+  if(!confirm('Delete this report? This cannot be undone.')) return;
+  const r=await del('/admin/reports/'+id);
+  if(r.ok){ toast('Report deleted.'); await loadAdminReports(); }
+  else alert(r.d.error||'Delete failed.');
+}
+
+function iconFor(type) {
+  if (type==='TICKET')   return '🎫';
+  if (type==='EXHIBIT')  return '🏛️';
+  if (type==='COMBINED') return '📊';
+  return '📈';
+}
+
+function renderReportData(type, d) {
+  if (!d||!Object.keys(d).length) return '<p style="color:#9ca3af">No data.</p>';
+  let html = '';
+  // Key metrics
+  const simpleKeys = Object.entries(d).filter(([k,v])=>typeof v==='number'||typeof v==='string');
+  if (simpleKeys.length) {
+    html += simpleKeys.map(([k,v])=>`<div class="report-kv"><span>${prettify(k)}</span><strong>${typeof v==='number'&&v%1!==0?'₹'+v.toFixed(2):v}</strong></div>`).join('');
+  }
+  // Nested maps
+  const mapEntries = Object.entries(d).filter(([k,v])=>v&&typeof v==='object'&&!Array.isArray(v));
+  mapEntries.forEach(([k,v])=>{
+    html+=`<div style="margin-top:12px"><strong style="color:#4f46e5;font-size:13px">${prettify(k)}</strong>`;
+    html+=Object.entries(v).map(([k2,v2])=>`<div class="report-kv" style="padding:4px 0"><span>${k2}</span><strong>${typeof v2==='number'&&v2%1!==0?'₹'+v2.toFixed(2):v2}</strong></div>`).join('');
+    html+='</div>';
+  });
+  // Lists
+  const listEntries = Object.entries(d).filter(([k,v])=>Array.isArray(v));
+  listEntries.forEach(([k,v])=>{
+    if (!v.length) return;
+    html+=`<div style="margin-top:12px"><strong style="color:#4f46e5;font-size:13px">${prettify(k)}</strong><div style="overflow-x:auto">`;
+    if (typeof v[0]==='object') {
+      const keys=Object.keys(v[0]);
+      html+=`<table style="margin-top:6px"><thead><tr>${keys.map(k=>`<th>${prettify(k)}</th>`).join('')}</tr></thead><tbody>`;
+      html+=v.map(row=>`<tr>${keys.map(k=>`<td>${row[k]??''}</td>`).join('')}</tr>`).join('');
+      html+='</tbody></table>';
+    }
+    html+='</div></div>';
+  });
+  return html;
+}
+
+function prettify(k) {
+  return k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()).replace('By ',' by ');
+}
+
+async function generateReport() {
+  const reportType=document.getElementById('reportType').value;
+  const r = await post('/admin/reports/generate',{reportType,adminId:me.id});
+  if (r.ok) { toast('📊 Report generated!'); await loadAdminReports(); }
+  else alert(r.d.error||'Failed to generate report.');
+}
+
+// ─ Analytics Tab ─
+async function loadAnalyticsDetail() {
+  const r = await get('/admin/analytics');
+  if (!r.ok) return;
+  const d = r.d;
+  const block=(title,obj)=>{
+    if (!obj||!Object.keys(obj).length) return '';
+    return `<div class="report-section"><h4>${title}</h4>${Object.entries(obj).map(([k,v])=>
+      `<div class="report-kv"><span>${k}</span><strong>${typeof v==='number'&&v%1!==0?'₹'+v.toFixed(2):v}</strong></div>`
+    ).join('')}</div>`;
+  };
+  document.getElementById('analyticsDetail').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+      ${block('Bookings by Status',d.bookingsByStatus)}
+      ${block('Tickets by Type',d.ticketsByType)}
+      ${block('Revenue by Type',d.revenueByTicketType)}
+      ${block('Exhibits by Category',d.exhibitsByCategory)}
+    </div>`;
+}
+
+function adminTab(tab, btn) {
+  document.querySelectorAll('#adminPage .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#adminPage .tab-content').forEach(c=>c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab==='bookings')  loadAdminBookings();
+  if (tab==='exhibits')  loadAdminExhibits();
+  if (tab==='guides')    loadAdminGuides();
+  if (tab==='reports')   loadAdminReports();
+  if (tab==='analytics') loadAnalyticsDetail();
+}
+
+// ── VISITOR ───────────────────────────────────────────────────────────────
+async function loadVisitorDashboard() {
+  await loadExhibitsForVisitor();
+  await loadVisitorBookings();
+  await loadVisitorNotifications();
+  await loadVisitorFeedbackList();
+}
+
+async function loadExhibitsForVisitor() {
+  const r = await get('/exhibits/active');
+  const el = document.getElementById('visitorExhibitGrid');
+  const fbSel = document.getElementById('fbExhibit');
+  fbSel.innerHTML='<option value="">Select exhibit…</option>';
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No exhibits available.</div>'; return; }
+  el.innerHTML = r.d.map(e=>{
+    const eid=e.exhibitId||e.id;
+    fbSel.innerHTML+=`<option value="${eid}">${e.name}</option>`;
+    return `<div class="card">
+      <span style="font-size:12px;color:#6b7280;font-weight:600;text-transform:uppercase">${e.category||'General'}</span>
+      <h3 style="margin-top:4px">${e.name}</h3>
+      <p>${e.description||'No description available.'}</p>
+      <button class="btn-green btn-sm" style="margin-top:14px" onclick="openBookModal(${eid},'${esc(e.name)}')">📅 Book Visit</button>
+    </div>`;
+  }).join('');
+}
+
+async function loadVisitorBookings() {
+  const r = await get(`/bookings/visitor/${me.id}`);
+  const el = document.getElementById('visitorBookingList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">You have no bookings yet.</div>'; return; }
+  el.innerHTML = r.d.map(b=>`
+    <div class="ticket" style="margin-bottom:16px">
+      <h4>${b.exhibitName} <span style="float:right"><span class="badge ${statusClass(b.status)}">${b.status}</span></span></h4>
+      <div class="tk-row"><span>📅 Date & Time</span><strong>${b.visitDate} at ${b.visitTime||'TBD'}</strong></div>
+      <div class="tk-row"><span>🎫 Ticket #${b.ticketId||'—'}</span><strong>${b.ticketType} — ₹${b.price}</strong></div>
+      <div class="tk-row"><span>💳 Payment</span><strong><span class="badge ${payClass(b.paymentStatus)}">${b.paymentStatus}</span></strong></div>
+      <div class="tk-row"><span>🗺️ Guide</span><strong>${b.assignedGuide&&b.assignedGuide!=='Not assigned'?b.assignedGuide:'Awaiting assignment'}</strong></div>
+      ${b.status==='PENDING'||b.status==='CONFIRMED'?`<div style="margin-top:12px"><button class="btn-red btn-sm" onclick="cancelBooking(${b.bookingId})">Cancel Booking</button></div>`:''}
+    </div>`).join('');
+}
+
+function openBookModal(exhibitId, exhibitName) {
+  bookingExhibitId = exhibitId;
+  document.getElementById('modalExhibitName').textContent = exhibitName;
+  document.getElementById('bookAlert').innerHTML='';
+  document.getElementById('bookModal').classList.add('open');
+}
+
+async function submitBooking() {
+  const date=v('bookDate'), time=v('bookTime'), ticketType=document.getElementById('bookTicketType').value, numberOfTickets=parseInt(document.getElementById('bookNumberOfTickets').value)||1;
+  const el=document.getElementById('bookAlert');
+  if (!date||!time) { showAlert(el,'err','Please select date and time.'); return; }
+  const r = await post('/bookings',{visitorId:me.id,exhibitId:bookingExhibitId,visitDate:date,visitTime:time,ticketType,numberOfTickets});
+  if (r.ok) {
+    showAlert(el,'ok','✅ Booking submitted! Your ticket is pending admin approval.');
+    setTimeout(()=>{ closeModal('bookModal'); loadVisitorBookings(); loadVisitorNotifications(); },1500);
+  } else showAlert(el,'err',r.d.error||'Booking failed.');
+}
+
+async function cancelBooking(id) {
+  if (!confirm('Cancel this booking?')) return;
+  const r = await put2(`/bookings/${id}/cancel`);
+  if (r.ok) { toast('Booking cancelled.'); await loadVisitorBookings(); }
+  else alert(r.d.error||'Error');
+}
+
+async function loadVisitorNotifications() {
+  const r = await get(`/notifications/user/${me.id}`);
+  const el = document.getElementById('visitorNotifList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No notifications yet.</div>'; return; }
+  el.innerHTML = r.d.map(n=>`<div class="notif"><p>${n.message}</p><small>${(n.createdOn||'').replace('T',' ').split('.')[0]}</small></div>`).join('');
+}
+
+async function loadVisitorFeedbackList() {
+  const r = await get(`/feedback/visitor/${me.id}`);
+  const el = document.getElementById('visitorFeedbackList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No feedback yet.</div>'; return; }
+  el.innerHTML = r.d.map(f=>`<div class="card" style="margin-bottom:12px">
+    <strong>${f.exhibitName}</strong>
+    <p>${'⭐'.repeat(f.rating||0)}</p>
+    <p style="color:#555;font-size:14px">${f.comments||''}</p>
+  </div>`).join('');
+}
+
+let selRating=0;
+function buildStars() {
+  const c=document.getElementById('starRow'); if(!c) return; c.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('span'); s.textContent=i<=selRating?'⭐':'☆';
+    s.style.fontSize='28px'; s.style.cursor='pointer';
+    s.onclick=()=>{selRating=i;buildStars();}; c.appendChild(s);
+  }
+}
+async function submitFeedback() {
+  const exhibitId=document.getElementById('fbExhibit').value, comments=v('fbComment');
+  const el=document.getElementById('feedbackAlert');
+  if (!exhibitId||!selRating) { showAlert(el,'err','Select an exhibit and rating.'); return; }
+  const r = await post('/feedback',{visitorId:me.id,exhibitId:+exhibitId,rating:selRating,comments});
+  if (r.ok) {
+    showAlert(el,'ok','✅ Feedback submitted!');
+    document.getElementById('fbExhibit').value=''; document.getElementById('fbComment').value=''; selRating=0; buildStars();
+    await loadVisitorFeedbackList();
+  } else showAlert(el,'err',r.d.error||'Failed.');
+}
+
+function visitorTab(tab,btn){
+  document.querySelectorAll('#visitorPage .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#visitorPage .tab-content').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='mybookings')    loadVisitorBookings();
+  if(tab==='notifications') loadVisitorNotifications();
+  if(tab==='feedback'){loadVisitorFeedbackList();loadExhibitsForVisitor();}
+}
+
+// ── GUIDE ─────────────────────────────────────────────────────────────────
+async function loadGuideDashboard() {
+  await loadGuideAssignments();
+  await loadGuideNotifications();
+}
+
+async function loadGuideAssignments() {
+  const r = await get(`/guides/${me.id}/assignments`);
+  const pel=document.getElementById('guidePendingList'), cel=document.getElementById('guideConfirmedList');
+  if (!r.ok||!r.d.length) {
+    pel.innerHTML='<div class="empty">No pending assignments.</div>';
+    cel.innerHTML='<div class="empty">No confirmed assignments.</div>';
+    return;
+  }
+  const pend=r.d.filter(a=>a.status==='PENDING');
+  const conf=r.d.filter(a=>a.status==='CONFIRMED');
+
+  pel.innerHTML = pend.length ? pend.map(a=>`<div class="card" style="margin-bottom:14px">
+    <h3>${a.exhibitName}</h3>
+    <p>👤 Visitor: <strong>${a.visitorName}</strong></p>
+    <p>📅 Date: <strong>${a.visitDate} at ${a.visitTime}</strong></p>
+    <p>📋 Booking #${a.bookingId}</p>
+    <p style="color:#6b7280;font-size:13px;margin-top:8px">Assigned: ${a.assignedDate?.replace('T',' ').split('.')[0]||''}</p>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-green btn-sm" onclick="confirmAssignment(${a.id||a.assignmentId})">✓ Accept</button>
+      <button class="btn-red btn-sm" onclick="rejectAssignment(${a.id||a.assignmentId})">✗ Decline</button>
+    </div>
+  </div>`).join('') : '<div class="empty">No pending assignments.</div>';
+
+  cel.innerHTML = conf.length ? `<div class="grid">${conf.map(a=>`<div class="card">
+    <h3>${a.exhibitName}</h3>
+    <p>👤 Visitor: <strong>${a.visitorName}</strong></p>
+    <p>📅 <strong>${a.visitDate} at ${a.visitTime}</strong></p>
+    <p style="margin-top:10px"><span class="badge b-confirmed">Confirmed</span></p>
+  </div>`).join('')}</div>` : '<div class="empty">No confirmed assignments.</div>';
+
+  // Fill schedule tab too
+  document.getElementById('guideScheduleList').innerHTML = conf.length ?
+    `<table><thead><tr><th>Exhibit</th><th>Visitor</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody>
+    ${conf.map(a=>`<tr><td>${a.exhibitName}</td><td>${a.visitorName}</td><td>${a.visitDate}</td><td>${a.visitTime}</td><td><span class="badge b-confirmed">${a.status}</span></td></tr>`).join('')}
+    </tbody></table>` :
+    '<div class="empty">No confirmed schedule yet.</div>';
+}
+
+async function confirmAssignment(id) {
+  const r = await put(`/guides/assignments/${id}/confirm`);
+  if (r.ok) { toast('✅ Assignment accepted!'); await loadGuideAssignments(); }
+  else alert(r.d.error||'Error');
+}
+async function rejectAssignment(id) {
+  const r = await put(`/guides/assignments/${id}/reject`);
+  if (r.ok) { toast('Assignment declined.'); await loadGuideAssignments(); }
+  else alert(r.d.error||'Error');
+}
+
+async function loadGuideNotifications() {
+  const r = await get(`/notifications/user/${me.id}`);
+  const el=document.getElementById('guideNotifList');
+  if (!r.ok||!r.d.length) { el.innerHTML='<div class="empty">No notifications.</div>'; return; }
+  el.innerHTML=r.d.map(n=>`<div class="notif"><p>${n.message}</p><small>${(n.createdOn||'').replace('T',' ').split('.')[0]}</small></div>`).join('');
+}
+
+function guideTab(tab,btn){
+  document.querySelectorAll('#guidePage .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#guidePage .tab-content').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='assignments')  loadGuideAssignments();
+  if(tab==='guideNotifs')  loadGuideNotifications();
+}
+
+// ── HTTP helpers ──────────────────────────────────────────────────────────
+async function get(path) {
+  try { const r=await fetch(API+path); const d=await r.json().catch(()=>({})); return {ok:r.ok,d}; }
+  catch(e){ return {ok:false,d:{error:e.message}}; }
+}
+async function post(path,body) {
+  try { const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); const d=await r.json().catch(()=>({})); return {ok:r.ok,d}; }
+  catch(e){ return {ok:false,d:{error:e.message}}; }
+}
+async function put(path,body) {
+  try { const r=await fetch(API+path,{method:'PUT',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined}); const d=await r.json().catch(()=>({})); return {ok:r.ok,d}; }
+  catch(e){ return {ok:false,d:{error:e.message}}; }
+}
+async function del(path) {
+  try { const r=await fetch(API+path,{method:'DELETE'}); const d=await r.json().catch(()=>({})); return {ok:r.ok,d}; }
+  catch(e){ return {ok:false,d:{error:e.message}}; }
+}
+// alias for clarity in cancel (also PUT)
+const put2 = put;
+
+// ── UI helpers ────────────────────────────────────────────────────────────
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function showAlert(el,type,msg){
+  if(!el)return;
+  el.innerHTML=`<div class="alert alert-${type==='ok'?'ok':type==='info'?'info':'err'}">${msg}</div>`;
+  if(type==='ok') setTimeout(()=>{if(el)el.innerHTML='';},4000);
+}
+
+let _toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>t.style.opacity='0',3000);
+}
+
+function statusClass(s){
+  if(!s)return'';
+  const m={'PENDING':'b-pending','CONFIRMED':'b-confirmed','ASSIGNED':'b-assigned',
+           'CANCELLED':'b-cancelled','REJECTED':'b-rejected'};
+  return m[s.toUpperCase()]||'b-pending';
+}
+function payClass(s){
+  if(!s)return'';
+  const m={'PENDING':'b-pending','PAID':'b-paid','REFUNDED':'b-refunded'};
+  return m[s.toUpperCase()]||'b-pending';
+}
+
+window.onclick = e => {
+  ['bookModal','assignModal'].forEach(id=>{
+    const m=document.getElementById(id); if(e.target===m) closeModal(id);
+  });
+};
+</script>
+</body>
+</html>
